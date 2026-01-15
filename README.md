@@ -2,6 +2,8 @@
 
 A Windows 10/11 application for easily switching between network gateway profiles. Manage multiple network configurations including IP addresses, gateways, DNS servers, and proxy settings with a single click.
 
+**Built with Python and PyQt6 for a modern, responsive UI.**
+
 ## Features
 
 - **Multiple Network Profiles**: Store and manage multiple network configurations
@@ -23,42 +25,65 @@ A Windows 10/11 application for easily switching between network gateway profile
 ## Requirements
 
 - Windows 10 or Windows 11
-- .NET 6.0 Runtime or later
+- Python 3.10 or later
 - Administrator privileges (required for changing network settings)
 
 ## Installation
 
-### Build from Source
+### Option 1: Install from Source
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/gateway-switcher.git
+   git clone https://github.com/AALVAREZG/gateway-switcher.git
    cd gateway-switcher
    ```
 
-2. Build the solution:
+2. Create a virtual environment (recommended):
    ```bash
-   dotnet build GatewaySwitcher.sln -c Release
+   python -m venv venv
+   venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Run the application:
+   ```bash
+   python run.py
+   ```
+
+### Option 2: Build Standalone Executable
+
+1. Install development dependencies:
+   ```bash
+   pip install -r requirements.txt
+   pip install pyinstaller
+   ```
+
+2. Build the executable:
+   ```bash
+   python build.py
    ```
 
 3. The executable will be in:
    ```
-   GatewaySwitcher/bin/Release/net6.0-windows/
+   dist/GatewaySwitcher.exe
    ```
 
-### Generate Application Icons (Optional)
+### Option 3: Install as Package
 
-Run the PowerShell script to generate custom icons:
-```powershell
-cd GatewaySwitcher/Resources
-.\IconGenerator.ps1
+```bash
+pip install .
+gateway-switcher
 ```
 
 ## Usage
 
 ### First Run
 
-1. Launch `GatewaySwitcher.exe` (requires Administrator privileges)
+1. Launch the application (requires Administrator privileges)
 2. Select your network adapter from the dropdown
 3. The app will automatically create a "Default" profile with your current network settings
 
@@ -76,7 +101,7 @@ cd GatewaySwitcher/Resources
 
 **From Main Window:**
 1. Select a profile from the list
-2. Click **Apply Selected Profile**
+2. Click **Apply Selected Profile** or double-click the profile
 
 **From System Tray:**
 1. Right-click the tray icon
@@ -101,30 +126,29 @@ To update the default profile with current system settings:
 ## Project Structure
 
 ```
-GatewaySwitcher/
-├── Models/
-│   ├── NetworkProfile.cs      # Profile data model
-│   └── ProfileCollection.cs   # Collection of profiles
-├── Services/
-│   ├── NetworkConfigurationService.cs  # IP/Gateway/DNS management
-│   ├── ProxyConfigurationService.cs    # Proxy settings management
-│   └── ProfileManager.cs               # Profile CRUD operations
-├── ViewModels/
-│   ├── BaseViewModel.cs       # MVVM base class
-│   └── MainViewModel.cs       # Main window logic
-├── Views/
-│   ├── MainWindow.xaml/.cs           # Main application window
-│   ├── ProfileEditorWindow.xaml/.cs  # Profile editor dialog
-│   └── PasswordDialog.xaml/.cs       # Password confirmation dialog
-├── Helpers/
-│   ├── Converters.cs          # XAML value converters
-│   ├── RelayCommand.cs        # ICommand implementations
-│   └── IconHelper.cs          # Icon generation utilities
-├── Resources/
-│   └── IconGenerator.ps1      # PowerShell script for icons
-├── App.xaml/.cs               # Application entry point
-├── app.manifest               # UAC administrator manifest
-└── GatewaySwitcher.csproj     # Project file
+gateway_switcher/
+├── models/
+│   ├── __init__.py
+│   └── profile.py           # NetworkProfile, ProxySettings dataclasses
+├── services/
+│   ├── __init__.py
+│   ├── network_service.py   # IP/Gateway/DNS management via netsh
+│   ├── proxy_service.py     # Proxy settings via Windows Registry
+│   └── profile_manager.py   # Profile CRUD operations
+├── ui/
+│   ├── __init__.py
+│   ├── main_window.py       # Main application window
+│   ├── profile_editor.py    # Profile editor dialog
+│   ├── password_dialog.py   # Password confirmation dialog
+│   ├── system_tray.py       # System tray icon and menu
+│   └── styles.py            # Application styling
+├── utils/
+│   ├── __init__.py
+│   └── admin.py             # Administrator privilege utilities
+├── resources/
+│   └── icons/               # Application icons
+├── __init__.py
+└── main.py                  # Application entry point
 ```
 
 ## Configuration Storage
@@ -136,11 +160,19 @@ Profiles are stored in:
 
 ## Technical Details
 
-- **Framework**: .NET 6.0 with WPF
+- **Language**: Python 3.10+
+- **UI Framework**: PyQt6
 - **Network Configuration**: Uses `netsh` commands for IP/DNS changes
-- **Proxy Settings**: Uses Windows Registry (Internet Settings)
-- **System Tray**: Hardcodet.NotifyIcon.Wpf library
-- **JSON Serialization**: Newtonsoft.Json
+- **Proxy Settings**: Uses Windows Registry (`winreg`)
+- **Windows API**: pywin32 for admin elevation and API calls
+- **Data Models**: Python dataclasses with JSON serialization
+
+## Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| PyQt6 | >=6.6.0 | Modern Qt-based UI framework |
+| pywin32 | >=306 | Windows API access |
 
 ## License
 
@@ -157,7 +189,7 @@ MIT License - See LICENSE file for details.
 
 ### "Access Denied" when applying profiles
 - Ensure you're running the application as Administrator
-- The app.manifest requires admin privileges, but you may need to right-click and "Run as Administrator"
+- The app will prompt for elevation on startup
 
 ### Changes not taking effect
 - Some network changes may require a network adapter restart
@@ -166,3 +198,16 @@ MIT License - See LICENSE file for details.
 ### Proxy not working in all applications
 - Some applications don't respect system proxy settings
 - Authentication credentials may need to be entered in specific applications
+
+### PyQt6 installation issues
+If you encounter issues installing PyQt6:
+```bash
+pip install --upgrade pip
+pip install PyQt6
+```
+
+### pywin32 installation issues
+```bash
+pip install pywin32
+python -c "import win32api"  # Test installation
+```

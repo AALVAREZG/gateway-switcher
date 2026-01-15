@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gateway-switcher"
+version = "1.0.0"
+description = "Network profile and gateway switcher for Windows 10/11"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Gateway Switcher Team"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Networking",
+]
+dependencies = [
+    "PyQt6>=6.6.0",
+    "pywin32>=306",
+]
+
+[project.urls]
+Homepage = "https://github.com/AALVAREZG/gateway-switcher"
+Repository = "https://github.com/AALVAREZG/gateway-switcher"
+Issues = "https://github.com/AALVAREZG/gateway-switcher/issues"
+
+[project.scripts]
+gateway-switcher = "gateway_switcher.main:main"
+
+[project.gui-scripts]
+gateway-switcher-gui = "gateway_switcher.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gateway_switcher*"]
+
+[tool.pyinstaller]
+# PyInstaller configuration for creating standalone executable
+name = "GatewaySwitcher"
+onefile = true
+windowed = true
+icon = "gateway_switcher/resources/icons/app.ico"
+uac-admin = true

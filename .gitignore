@@ -1,90 +1,62 @@
-# Build results
-[Bb]in/
-[Oo]bj/
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
-bld/
-[Bb]uild[Ll]og.*
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Visual Studio
-.vs/
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-*.userprefs
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
 
-# JetBrains Rider
+# PyInstaller
+*.manifest
+*.spec
+
+# IDE
 .idea/
-*.sln.iml
+.vscode/
+*.swp
+*.swo
+*~
 
-# NuGet
-*.nupkg
-**/[Pp]ackages/*
-!**/[Pp]ackages/build/
-*.nuget.props
-*.nuget.targets
-
-# Project-specific
-*.DotSettings.user
-*.GhostDoc.xml
-
-# Windows
+# OS
+.DS_Store
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Mac
-.DS_Store
-.AppleDouble
-.LSOverride
+# Testing
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.hypothesis/
 
-# Generated files
-*.exe
-*.dll
-*.pdb
-*.ilk
-*.meta
-*.obj
-*.iobj
-*.pch
-*.idb
-*.ipdb
+# Logs
 *.log
-*.tlog
-*.lastbuildstate
 
-# Publish output
-publish/
-*.pubxml
-!**/[Pp]ublish[Pp]rofiles/*.pubxml
+# Local settings
+local_settings.py
+.env
 
-# Test Results
-[Tt]est[Rr]esult*/
-[Bb]uild[Ll]og.*
-*.trx
-*.Coverage
-*.coveragexml
-
-# NCrunch
-_NCrunch_*
-.*crunch*.local.xml
-nCrunchTemp_*
-
-# Chutzpah Test files
-_chutzpah*
-
-# Dotnet tool
-.dotnet/
-
-# Local dev settings
-appsettings.*.json
-!appsettings.json
-!appsettings.Development.json
-
-# Resource files (generated at runtime)
-GatewaySwitcher/Resources/*.ico
+# Distribution
+MANIFEST
