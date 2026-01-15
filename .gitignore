@@ -1,0 +1,90 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]uild[Ll]og.*
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# NuGet
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+
+# Project-specific
+*.DotSettings.user
+*.GhostDoc.xml
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Generated files
+*.exe
+*.dll
+*.pdb
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.idb
+*.ipdb
+*.log
+*.tlog
+*.lastbuildstate
+
+# Publish output
+publish/
+*.pubxml
+!**/[Pp]ublish[Pp]rofiles/*.pubxml
+
+# Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.Coverage
+*.coveragexml
+
+# NCrunch
+_NCrunch_*
+.*crunch*.local.xml
+nCrunchTemp_*
+
+# Chutzpah Test files
+_chutzpah*
+
+# Dotnet tool
+.dotnet/
+
+# Local dev settings
+appsettings.*.json
+!appsettings.json
+!appsettings.Development.json
+
+# Resource files (generated at runtime)
+GatewaySwitcher/Resources/*.ico

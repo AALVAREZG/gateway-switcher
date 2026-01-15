@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Title>Gateway Switcher</Title>
+    <Authors>Gateway Switcher Team</Authors>
+    <Description>Easy network profile and gateway switcher for Windows 10/11</Description>
+    <Company>Gateway Switcher</Company>
+    <Product>Gateway Switcher</Product>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="Exists('Resources\app.ico')">
+    <ApplicationIcon>Resources\app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('Resources\app.ico')">
+    <Resource Include="Resources\app.ico" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('Resources\connected.ico')">
+    <Resource Include="Resources\connected.ico" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('Resources\disconnected.ico')">
+    <Resource Include="Resources\disconnected.ico" />
+  </ItemGroup>
+
+</Project>
