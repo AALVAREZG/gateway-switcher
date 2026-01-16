@@ -8,8 +8,9 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 
-from ..models import NetworkProfile
+from ..models import NetworkProfile, RouteRule
 from .styles import COLORS
+from .route_rules_editor import RouteRulesEditorDialog
 
 
 class ProfileEditorDialog(QDialog):
@@ -27,8 +28,13 @@ class ProfileEditorDialog(QDialog):
             created_at=profile.created_at,
             last_modified=profile.last_modified,
             network_settings=profile.network_settings.clone(),
-            proxy_settings=profile.proxy_settings.clone()
+            proxy_settings=profile.proxy_settings.clone(),
+            route_rules=[r.clone() for r in profile.route_rules]
         )
+        # Keep original IDs for route rules
+        for i, orig in enumerate(profile.route_rules):
+            if i < len(self.profile.route_rules):
+                self.profile.route_rules[i].id = orig.id
 
         self._setup_ui()
         self._load_values()
@@ -68,6 +74,10 @@ class ProfileEditorDialog(QDialog):
         # Proxy settings
         proxy_group = self._create_proxy_section()
         content_layout.addWidget(proxy_group)
+
+        # Route rules section
+        route_group = self._create_route_rules_section()
+        content_layout.addWidget(route_group)
 
         content_layout.addStretch()
         scroll.setWidget(content)
@@ -215,6 +225,55 @@ class ProfileEditorDialog(QDialog):
 
         return group
 
+    def _create_route_rules_section(self) -> QGroupBox:
+        """Create the route rules section."""
+        group = QGroupBox("Custom Route Rules")
+        layout = QVBoxLayout(group)
+
+        # Description
+        desc = QLabel(
+            "Configure different gateways or proxy settings for specific domains.\n"
+            "Example: Bypass proxy for api.anthropic.com"
+        )
+        desc.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 12px;")
+        desc.setWordWrap(True)
+        layout.addWidget(desc)
+
+        # Rules summary
+        self._rules_summary = QLabel("No route rules configured")
+        self._rules_summary.setStyleSheet("font-size: 13px; padding: 8px 0;")
+        layout.addWidget(self._rules_summary)
+
+        # Edit button
+        self._edit_rules_btn = QPushButton("Configure Route Rules...")
+        self._edit_rules_btn.setProperty("class", "secondary")
+        self._edit_rules_btn.clicked.connect(self._edit_route_rules)
+        layout.addWidget(self._edit_rules_btn)
+
+        return group
+
+    def _edit_route_rules(self) -> None:
+        """Open the route rules editor dialog."""
+        dialog = RouteRulesEditorDialog(self.profile.route_rules, parent=self)
+
+        if dialog.exec():
+            self.profile.route_rules = dialog.rules
+            self._update_rules_summary()
+
+    def _update_rules_summary(self) -> None:
+        """Update the route rules summary label."""
+        count = len(self.profile.route_rules)
+        enabled = sum(1 for r in self.profile.route_rules if r.enabled)
+
+        if count == 0:
+            self._rules_summary.setText("No route rules configured")
+        elif count == 1:
+            rule = self.profile.route_rules[0]
+            status = "enabled" if rule.enabled else "disabled"
+            self._rules_summary.setText(f"1 rule: {rule.pattern} ({status})")
+        else:
+            self._rules_summary.setText(f"{count} rules configured ({enabled} enabled)")
+
     def _create_buttons(self) -> QHBoxLayout:
         """Create the dialog buttons."""
         layout = QHBoxLayout()
@@ -261,6 +320,9 @@ class ProfileEditorDialog(QDialog):
         self._on_dhcp_dns_changed()
         self._on_proxy_changed()
         self._on_auth_changed()
+
+        # Update route rules summary
+        self._update_rules_summary()
 
     def _on_dhcp_changed(self) -> None:
         """Handle DHCP checkbox change."""

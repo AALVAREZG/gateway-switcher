@@ -3,7 +3,7 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QComboBox, QListWidget, QListWidgetItem,
-    QMessageBox, QFrame, QSizePolicy
+    QMessageBox, QFrame, QSizePolicy, QAbstractItemView
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QCloseEvent
@@ -15,7 +15,7 @@ from .profile_editor import ProfileEditorDialog
 from .password_dialog import PasswordDialog
 
 
-class ProfileListItem(QFrame):
+class ProfileListItem(QWidget):
     """Custom widget for displaying a profile in the list."""
 
     edit_clicked = pyqtSignal(str)
@@ -27,35 +27,32 @@ class ProfileListItem(QFrame):
 
     def _setup_ui(self, is_active: bool) -> None:
         """Set up the UI."""
-        # Set frame style
-        self.setStyleSheet(f"""
-            ProfileListItem {{
-                background-color: {COLORS["surface"]};
-                border-radius: 8px;
-                padding: 12px;
-            }}
-        """)
-        self.setMinimumHeight(80)
+        # Use transparent background - let QListWidget handle selection styling
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setMinimumHeight(90)
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(12, 8, 12, 8)
+        layout.setContentsMargins(4, 4, 4, 4)
+        layout.setSpacing(8)
 
         # Profile info
         info_layout = QVBoxLayout()
-        info_layout.setSpacing(4)
+        info_layout.setSpacing(2)
 
-        # Name row
+        # Name row with badges
         name_layout = QHBoxLayout()
+        name_layout.setSpacing(8)
+
         name_label = QLabel(self.profile.name)
-        name_label.setStyleSheet(f"font-weight: 600; font-size: 14px; color: {COLORS['text_primary']};")
+        name_label.setStyleSheet("font-weight: bold; font-size: 14px; color: #1a1a1a; background: transparent;")
         name_layout.addWidget(name_label)
 
         if self.profile.is_default:
             default_badge = QLabel("DEFAULT")
-            default_badge.setStyleSheet(f"""
-                background-color: {COLORS["accent"]};
+            default_badge.setStyleSheet("""
+                background-color: #FF9800;
                 color: white;
-                font-size: 10px;
+                font-size: 9px;
                 font-weight: bold;
                 padding: 2px 6px;
                 border-radius: 3px;
@@ -64,10 +61,10 @@ class ProfileListItem(QFrame):
 
         if is_active:
             active_badge = QLabel("ACTIVE")
-            active_badge.setStyleSheet(f"""
-                background-color: {COLORS["success"]};
+            active_badge.setStyleSheet("""
+                background-color: #4CAF50;
                 color: white;
-                font-size: 10px;
+                font-size: 9px;
                 font-weight: bold;
                 padding: 2px 6px;
                 border-radius: 3px;
@@ -86,38 +83,56 @@ class ProfileListItem(QFrame):
             ip_text = ns.ip_address or "Not set"
             gw_text = ns.gateway or "Not set"
 
-        network_label = QLabel(f"IP: {ip_text} | Gateway: {gw_text}")
-        network_label.setStyleSheet(f"font-size: 12px; color: {COLORS['text_secondary']};")
+        network_label = QLabel(f"IP: {ip_text}  |  Gateway: {gw_text}")
+        network_label.setStyleSheet("font-size: 12px; color: #333333; background: transparent;")
         info_layout.addWidget(network_label)
 
         # DNS info
         dns_text = "Auto" if ns.use_dhcp_dns else (ns.primary_dns or "Not set")
         dns_label = QLabel(f"DNS: {dns_text}")
-        dns_label.setStyleSheet(f"font-size: 11px; color: {COLORS['text_secondary']};")
+        dns_label.setStyleSheet("font-size: 11px; color: #555555; background: transparent;")
         info_layout.addWidget(dns_label)
 
         # Proxy info
         ps = self.profile.proxy_settings
         proxy_text = ps.full_proxy_address if ps.enabled else "Disabled"
-        proxy_color = COLORS["primary"] if ps.enabled else COLORS["text_secondary"]
+        proxy_color = "#2196F3" if ps.enabled else "#666666"
         proxy_label = QLabel(f"Proxy: {proxy_text}")
-        proxy_label.setStyleSheet(f"font-size: 11px; color: {proxy_color};")
+        proxy_label.setStyleSheet(f"font-size: 11px; color: {proxy_color}; background: transparent;")
         info_layout.addWidget(proxy_label)
+
+        # Route rules count if any
+        if hasattr(self.profile, 'route_rules') and self.profile.route_rules:
+            rules_label = QLabel(f"Routes: {len(self.profile.route_rules)} custom rule(s)")
+            rules_label.setStyleSheet("font-size: 10px; color: #9C27B0; background: transparent;")
+            info_layout.addWidget(rules_label)
 
         layout.addLayout(info_layout, 1)
 
         # Edit button
         edit_btn = QPushButton("Edit")
-        edit_btn.setProperty("class", "secondary")
+        edit_btn.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                color: #2196F3;
+                border: 1px solid #2196F3;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #E3F2FD;
+            }
+        """)
         edit_btn.setFixedWidth(60)
-        edit_btn.setFixedHeight(32)
+        edit_btn.setFixedHeight(28)
         edit_btn.clicked.connect(lambda: self.edit_clicked.emit(self.profile.id))
         layout.addWidget(edit_btn, alignment=Qt.AlignmentFlag.AlignVCenter)
 
     def sizeHint(self):
         """Return size hint for the widget."""
         from PyQt6.QtCore import QSize
-        return QSize(400, 90)
+        return QSize(400, 100)
 
 
 class MainWindow(QMainWindow):
