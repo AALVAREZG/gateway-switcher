@@ -13,11 +13,8 @@ from .utils import is_admin, run_as_admin
 class GatewaySwitcherApp:
     """Main application class."""
 
-    def __init__(self):
-        self._app = QApplication(sys.argv)
-        self._app.setApplicationName("Gateway Switcher")
-        self._app.setApplicationVersion("1.0.0")
-        self._app.setQuitOnLastWindowClosed(False)
+    def __init__(self, app: QApplication):
+        self._app = app
 
         # Apply stylesheet
         self._app.setStyleSheet(STYLESHEET)
@@ -100,6 +97,12 @@ class GatewaySwitcherApp:
 
 def main():
     """Main entry point."""
+    # Must create QApplication FIRST before any widgets
+    app = QApplication(sys.argv)
+    app.setApplicationName("Gateway Switcher")
+    app.setApplicationVersion("1.0.0")
+    app.setQuitOnLastWindowClosed(False)
+
     # Check for admin privileges
     if not is_admin():
         reply = QMessageBox.question(
@@ -120,16 +123,14 @@ def main():
                     "Failed to obtain administrator privileges."
                 )
                 sys.exit(1)
-        else:
-            # Continue without admin - some features won't work
-            pass
+        # else: Continue without admin - some features won't work
 
     # Check for --minimized flag
     minimized = "--minimized" in sys.argv
 
-    # Create and run application
-    app = GatewaySwitcherApp()
-    sys.exit(app.run(minimized=minimized))
+    # Create and run application (pass existing app)
+    gateway_app = GatewaySwitcherApp(app)
+    sys.exit(gateway_app.run(minimized=minimized))
 
 
 if __name__ == "__main__":
