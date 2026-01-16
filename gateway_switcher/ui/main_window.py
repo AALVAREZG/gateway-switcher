@@ -27,16 +27,27 @@ class ProfileListItem(QFrame):
 
     def _setup_ui(self, is_active: bool) -> None:
         """Set up the UI."""
+        # Set frame style
+        self.setStyleSheet(f"""
+            ProfileListItem {{
+                background-color: {COLORS["surface"]};
+                border-radius: 8px;
+                padding: 12px;
+            }}
+        """)
+        self.setMinimumHeight(80)
+
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(12, 8, 12, 8)
 
         # Profile info
         info_layout = QVBoxLayout()
+        info_layout.setSpacing(4)
 
         # Name row
         name_layout = QHBoxLayout()
         name_label = QLabel(self.profile.name)
-        name_label.setStyleSheet("font-weight: 600; font-size: 14px;")
+        name_label.setStyleSheet(f"font-weight: 600; font-size: 14px; color: {COLORS['text_primary']};")
         name_layout.addWidget(name_label)
 
         if self.profile.is_default:
@@ -66,13 +77,24 @@ class ProfileListItem(QFrame):
         name_layout.addStretch()
         info_layout.addLayout(name_layout)
 
-        # Network info
+        # Network info - show IP and Gateway
         ns = self.profile.network_settings
-        ip_text = "DHCP" if ns.use_dhcp else ns.ip_address
-        gw_text = "Auto" if ns.use_dhcp else (ns.gateway or "None")
-        network_label = QLabel(f"{ip_text} | GW: {gw_text}")
+        if ns.use_dhcp:
+            ip_text = "DHCP"
+            gw_text = "Auto"
+        else:
+            ip_text = ns.ip_address or "Not set"
+            gw_text = ns.gateway or "Not set"
+
+        network_label = QLabel(f"IP: {ip_text} | Gateway: {gw_text}")
         network_label.setStyleSheet(f"font-size: 12px; color: {COLORS['text_secondary']};")
         info_layout.addWidget(network_label)
+
+        # DNS info
+        dns_text = "Auto" if ns.use_dhcp_dns else (ns.primary_dns or "Not set")
+        dns_label = QLabel(f"DNS: {dns_text}")
+        dns_label.setStyleSheet(f"font-size: 11px; color: {COLORS['text_secondary']};")
+        info_layout.addWidget(dns_label)
 
         # Proxy info
         ps = self.profile.proxy_settings
@@ -88,8 +110,14 @@ class ProfileListItem(QFrame):
         edit_btn = QPushButton("Edit")
         edit_btn.setProperty("class", "secondary")
         edit_btn.setFixedWidth(60)
+        edit_btn.setFixedHeight(32)
         edit_btn.clicked.connect(lambda: self.edit_clicked.emit(self.profile.id))
-        layout.addWidget(edit_btn)
+        layout.addWidget(edit_btn, alignment=Qt.AlignmentFlag.AlignVCenter)
+
+    def sizeHint(self):
+        """Return size hint for the widget."""
+        from PyQt6.QtCore import QSize
+        return QSize(400, 90)
 
 
 class MainWindow(QMainWindow):
