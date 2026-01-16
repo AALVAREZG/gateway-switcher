@@ -1,5 +1,11 @@
 """Data models for Gateway Switcher."""
 
-from .profile import NetworkProfile, NetworkSettings, ProxySettings, ProfileCollection, AppSettings
+from .profile import (
+    NetworkProfile, NetworkSettings, ProxySettings, ProfileCollection,
+    AppSettings, RouteRule
+)
 
-__all__ = ["NetworkProfile", "NetworkSettings", "ProxySettings", "ProfileCollection", "AppSettings"]
+__all__ = [
+    "NetworkProfile", "NetworkSettings", "ProxySettings", "ProfileCollection",
+    "AppSettings", "RouteRule"
+]

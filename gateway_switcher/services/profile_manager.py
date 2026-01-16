@@ -8,6 +8,7 @@ from typing import Optional, Callable
 from ..models import NetworkProfile, ProfileCollection, NetworkSettings
 from .network_service import NetworkService, OperationResult
 from .proxy_service import ProxyService
+from .route_service import RouteService
 
 
 class ProfileManager:
@@ -25,6 +26,7 @@ class ProfileManager:
         self._collection = ProfileCollection()
         self._network_service = NetworkService()
         self._proxy_service = ProxyService()
+        self._route_service = RouteService()
 
         # Event callbacks
         self._on_profile_applied: list[Callable[[NetworkProfile], None]] = []
@@ -187,13 +189,44 @@ class ProfileManager:
         if not network_result.success:
             return network_result
 
+        # Get bypass domains from route rules
+        bypass_domains = []
+        if profile.route_rules:
+            bypass_domains = self._route_service.get_bypass_list_from_rules(
+                profile.route_rules
+            )
+
+        # Update proxy bypass list with route rule domains
+        proxy_settings = profile.proxy_settings
+        if bypass_domains and proxy_settings.enabled:
+            existing_bypass = proxy_settings.bypass_list or ""
+            existing_items = [b.strip() for b in existing_bypass.split(";") if b.strip()]
+            # Add new bypass domains without duplicates
+            for domain in bypass_domains:
+                if domain not in existing_items:
+                    existing_items.append(domain)
+            proxy_settings.bypass_list = ";".join(existing_items)
+
         # Apply proxy settings
-        proxy_result = self._proxy_service.apply_proxy_settings(profile.proxy_settings)
+        proxy_result = self._proxy_service.apply_proxy_settings(proxy_settings)
         if not proxy_result.success:
             return OperationResult(
                 False,
                 f"Network settings applied but proxy failed: {proxy_result.message}"
             )
+
+        # Apply route rules (gateway overrides, PAC file)
+        if profile.route_rules:
+            route_result = self._route_service.apply_route_rules(
+                profile.route_rules,
+                profile.network_settings.gateway,
+                proxy_settings.enabled,
+                proxy_settings.proxy_server,
+                proxy_settings.proxy_port
+            )
+            # Log route result but don't fail the whole operation
+            if not route_result.success:
+                print(f"Route rules warning: {route_result.message}")
 
         # Update active profile
         self._collection.active_profile_id = profile_id

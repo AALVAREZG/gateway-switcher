@@ -134,19 +134,21 @@ QListWidget {{
 }}
 
 QListWidget::item {{
-    background-color: {COLORS["surface"]};
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
     border-radius: 8px;
-    padding: 12px;
-    margin: 4px 0px;
+    padding: 8px;
+    margin: 4px 2px;
 }}
 
 QListWidget::item:selected {{
-    background-color: {COLORS["primary_light"]};
+    background-color: #E3F2FD;
     border: 2px solid {COLORS["primary"]};
 }}
 
-QListWidget::item:hover {{
+QListWidget::item:hover:!selected {{
     background-color: #F5F5F5;
+    border: 1px solid #BDBDBD;
 }}
 
 QScrollArea {{
